@@ -13,7 +13,7 @@ class MirroringStatusView(HTTPMethodView):
     @openapi.summary("Get mirroring status")
     async def get(self, request: SunflowerRequest) -> HTTPResponse:
         return json(
-            request.app.shared_ctx.mirroring_status_dict.copy(),
+            request.app.ctx.mirroring_task.status.to_dict(),
             headers={"Access-Control-Allow-Origin": "*"},
         )
 
