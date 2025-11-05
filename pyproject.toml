@@ -1,0 +1,46 @@
+[project]
+name = "sunflower"
+version = "1.0.0"
+description = "Hitomi.la metadata mirror server"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "deepdiff>=8.6.1",
+    "greenlet>=3.2.4",
+    "sanic>=25.3.0",
+    "sanic-ext>=24.12.0",
+    "sentry-sdk>=2.38.0",
+    "yggdrasil[infrastructure]",
+]
+
+[dependency-groups]
+style = [
+    "ruff>=0.13.1",
+]
+test = [
+    "httpx>=0.28.1",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=7.0.0",
+]
+type = [
+    "mypy>=1.18.2",
+    "pyright>=1.1.405",
+]
+
+[tool.pyright]
+include = ["sunflower"]
+typeCheckingMode = "strict"
+
+[tool.ruff]
+include = ["sunflower/**/*.py"]
+lint.extend-select = ["I"]
+lint.select = []
+
+[tool.mypy]
+packages = ["sunflower"]
+disable_error_code = ["attr-defined", "union-attr", "name-defined", "used-before-def", "call-arg", "arg-type", "call-overload", "valid-type", "var-annotated", "override", "return", "empty-body", "return-value", "assignment", "method-assign", "type-var", "operator", "index", "list-item", "dict-item", "typeddict-item", "typeddict-unknown-key", "has-type", "import", "no-redef", "func-returns-value", "abstract", "type-abstract", "safe-super", "valid-newtype", "exit-return", "name-match", "literal-required", "no-overload-impl", "unused-coroutine", "top-level-await", "assert-type", "truthy-function", "str-format", "str-bytes-safe", "annotation-unchecked", "syntax", "misc"]
+disallow_untyped_defs = true
+
+[tool.uv.sources]
+yggdrasil = { git = "https://github.com/Saebasol/Yggdrasil", rev = "2.0.0" }

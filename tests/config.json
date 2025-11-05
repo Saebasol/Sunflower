@@ -1,0 +1,9 @@
+{
+    "INDEX_FILE": [
+        "index-korean.nozomi"
+    ],
+    "MIRRORING_DELAY": 3600,
+    "REFRESH_GG_JS_DELAY": 86400,
+    "INFO_DB_URL": "mongodb://sunflower_user:sunflowerpasswd@localhost:27017",
+    "GALLERYINFO_DB_URL": "postgresql+asyncpg://sunflower_user:sunflowerpasswd@localhost:5432/sunflower_db"
+}
