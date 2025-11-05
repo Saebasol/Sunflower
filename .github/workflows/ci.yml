@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+      - name: Setup python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Setup uv
+        run: |
+          python -m pip install pip
+          pip install uv
+      - name: Install dependencies
+        run: uv sync --group style
+      - name: Check style with ruff
+        run: uv run ruff format --check
+
+  type:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+      - name: Setup python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Setup uv
+        run: |
+          python -m pip install pip
+          pip install uv
+      - name: Install dependencies
+        run: uv sync --group type
+      - name: Check type
+        run: uv run pyright
+      - name: Check untyped function
+        run: uv run mypy
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: heliotrope_user
+          POSTGRES_PASSWORD: heliotropepasswd
+          POSTGRES_DB: heliotrope_db
+        ports:
+          - 127.0.0.1:5432:5432
+      mongo:
+        image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: heliotrope_user
+          MONGO_INITDB_ROOT_PASSWORD: heliotropepasswd
+        ports:
+          - 127.0.0.1:27017:27017
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+      - name: Setup python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Setup uv
+        run: |
+          python -m pip install pip
+          pip install uv
+      - name: Install dependencies
+        run: uv sync --group test
+      - name: Check test
+        run: uv run pytest --asyncio-mode=auto --cov=heliotrope --cov-report=xml
+      - name: Codecov
+        uses: codecov/codecov-action@v5
