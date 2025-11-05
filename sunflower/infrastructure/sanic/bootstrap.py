@@ -37,7 +37,7 @@ from sunflower.infrastructure.sanic.config import SunflowerConfig
 from sunflower.infrastructure.sanic.error import not_found
 
 
-async def main_process_startup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
+async def startup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
     if sunflower.config.PRODUCTION:  # pragma: no cover
         init(
             sunflower.config.SENTRY_DSN,
@@ -127,7 +127,7 @@ async def main_process_startup(sunflower: Sunflower, loop: AbstractEventLoop) ->
         )
 
 
-async def main_process_closeup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
+async def closeup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
     # Close session
     await sunflower.ctx.mongodb.client.close()
     await sunflower.ctx.sa.engine.dispose()
@@ -143,7 +143,7 @@ def create_app(config: SunflowerConfig) -> Sunflower:
     )(not_found)
     sunflower.config.update(config)
     sunflower.blueprint(endpoint)
-    sunflower.main_process_start(main_process_startup)
-    sunflower.main_process_stop(main_process_closeup)
+    sunflower.before_server_start(startup)
+    sunflower.before_server_stop(closeup)
 
     return sunflower
