@@ -102,6 +102,7 @@ async def startup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
         sunflower.ctx.hitomi_la_galleryinfo_repository,
         sunflower.ctx.sa_galleryinfo_repository,
         sunflower.ctx.mongodb_repository,
+        sunflower.config.RUN_AS_ONCE,
     )
     mirroring_task.REMOTE_CONCURRENT_SIZE = (
         sunflower.config.MIRRORING_REMOTE_CONCURRENT_SIZE
@@ -114,17 +115,25 @@ async def startup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
     )
 
     if not sunflower.test_mode:  # pragma: no cover
-        task_manager.register_task(
-            mirroring_task.start_mirroring,
-            MirroringTask.__name__,
-            sunflower.config.MIRRORING_DELAY,
-        )
-        task_manager.register_task(
-            mirroring_task.start_integrity_check,
-            "integrity_check",
-            sunflower.config.INTEGRITY_PARTIAL_CHECK_DELAY,
-            sunflower.config.INTEGRITY_ALL_CHECK_DELAY,
-        )
+        if not sunflower.config.DISABLE_MIRRORING:
+            task_manager.register_task(
+                mirroring_task.start_mirroring,
+                MirroringTask.__name__,
+                sunflower.config.MIRRORING_DELAY,
+            )
+        if not sunflower.config.DISABLE_INTEGRITY_CHECK:
+            if not sunflower.config.DISABLE_INTEGRITY_PARTIAL_CHECK:
+                task_manager.register_task(
+                    mirroring_task.start_partial_integrity_check,
+                    f"{MirroringTask.__name__}_PartialIntegrityCheck",
+                    sunflower.config.INTEGRITY_PARTIAL_CHECK_DELAY,
+                )
+            if not sunflower.config.DISABLE_INTEGRITY_FULL_CHECK:
+                task_manager.register_task(
+                    mirroring_task.start_full_integrity_check,
+                    f"{MirroringTask.__name__}_FullIntegrityCheck",
+                    sunflower.config.INTEGRITY_FULL_CHECK_DELAY,
+                )
 
 
 async def closeup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:

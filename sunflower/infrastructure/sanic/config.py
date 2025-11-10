@@ -36,13 +36,17 @@ class SunflowerConfig(Config):
                 "INFO_DB_URL": "",
                 "INDEX_FILES": ["index-english.nozomi"],
                 "MIRRORING_DELAY": 3600,
-                "REFRESH_GG_JS_DELAY": 3600,
                 "INTEGRITY_PARTIAL_CHECK_DELAY": 21600,
-                "INTEGRITY_ALL_CHECK_DELAY": 432000,
+                "INTEGRITY_FULL_CHECK_DELAY": 432000,
                 "USE_ATLAS_SEARCH": False,
                 "MIRRORING_REMOTE_CONCURRENT_SIZE": 50,
                 "MIRRORING_LOCAL_CONCURRENT_SIZE": 25,
                 "INTEGRITY_PARTIAL_CHECK_RANGE_SIZE": 100,
+                "RUN_AS_ONCE": False,
+                "DISABLE_MIRRORING": False,
+                "DISABLE_INTEGRITY_CHECK": False,
+                "DISABLE_INTEGRITY_PARTIAL_CHECK": False,
+                "DISABLE_INTEGRITY_FULL_CHECK": False,
                 # Sanic config
                 "HOST": "127.0.0.1",
                 "PORT": 8000,
@@ -79,14 +83,18 @@ class SunflowerConfig(Config):
     GALLERYINFO_DB_URL: str
     INFO_DB_URL: str
     MIRRORING_DELAY: float
-    REFRESH_GG_JS_DELAY: float
     INTEGRITY_PARTIAL_CHECK_DELAY: float
-    INTEGRITY_ALL_CHECK_DELAY: float
+    INTEGRITY_FULL_CHECK_DELAY: float
     INDEX_FILES: list[str]
     USE_ATLAS_SEARCH: bool
     MIRRORING_REMOTE_CONCURRENT_SIZE: int
     MIRRORING_LOCAL_CONCURRENT_SIZE: int
     INTEGRITY_PARTIAL_CHECK_RANGE_SIZE: int
+    RUN_AS_ONCE: bool
+    DISABLE_MIRRORING: bool
+    DISABLE_INTEGRITY_CHECK: bool
+    DISABLE_INTEGRITY_PARTIAL_CHECK: bool
+    DISABLE_INTEGRITY_FULL_CHECK: bool
     # Sanic config
     DEBUG: bool
     HOST: str

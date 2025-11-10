@@ -1,5 +1,5 @@
 import math
-from asyncio import Lock, as_completed, create_task, sleep
+from asyncio import Lock, as_completed, sleep
 from dataclasses import dataclass
 from datetime import datetime
 from time import tzname
@@ -77,10 +77,12 @@ class MirroringTask:
         hitomi_la_repo: HitomiLaGalleryinfoRepository,
         sqlalchemy_repo: SAGalleryinfoRepository,
         mongodb_repo: MongoDBInfoRepository,
+        run_as_once: bool,
     ) -> None:
         self.hitomi_la = hitomi_la_repo
         self.sqlalchemy = sqlalchemy_repo
         self.mongodb = mongodb_repo
+        self.run_as_once = run_as_once
         self.status = MirroringStatus.default()
         self.status.index_files = hitomi_la_repo.hitomi_la.index_files
         self._task_lock = Lock()
@@ -183,7 +185,66 @@ class MirroringTask:
                     Info.from_galleryinfo(remote_result)
                 )
 
-    async def mirror(self) -> None:
+    async def perform_integrity_check(self, ids: tuple[int, ...]) -> None:
+        async with self._task_lock:
+            if (
+                not self.status.is_mirroring_galleryinfo
+                and not self.status.is_converting_to_info
+            ):
+                self.status.is_checking_integrity = True
+                try:
+                    await self._process_in_jobs(
+                        ids,
+                        self._integrity_check,
+                        is_remote=False,
+                    )
+                except:
+                    self.skip_ids.clear()
+                finally:
+                    self.status.is_checking_integrity = False
+                    self.status.reset()
+
+    async def perform_full_integrity_check(self) -> None:
+        all_info_ids = await GetAllInfoIdsUseCase(self.mongodb)
+        ids_to_check = set(all_info_ids) - set(self.skip_ids)
+        await self.perform_integrity_check(tuple(ids_to_check))
+
+    async def perform_partial_integrity_check(self) -> None:
+        all_info_ids = await GetAllInfoIdsUseCase(self.mongodb)
+        ids_to_check = set(all_info_ids) - set(self.skip_ids)
+        await self.perform_integrity_check(
+            tuple(ids_to_check)[: self.INTEGRITY_PARTIAL_CHECK_RANGE_SIZE]
+        )
+
+    async def start_partial_integrity_check(
+        self,
+        partial_check_delay: float,
+    ) -> None:
+        logger.info(
+            f"Starting partial integrity check task with partial check delay: {partial_check_delay}"
+        )
+        while True:
+            await sleep(partial_check_delay)
+            await self.perform_partial_integrity_check()
+
+            if self.run_as_once:
+                break
+
+    async def start_full_integrity_check(
+        self,
+        full_check_delay: float,
+    ) -> None:
+        logger.info(
+            f"Starting full integrity check task with full check delay: {full_check_delay}"
+        )
+        while True:
+            await sleep(full_check_delay)
+            await self.perform_full_integrity_check()
+
+            if self.run_as_once:
+                break
+
+    async def perform_mirroring(self) -> None:
         remote_differences = await self._get_differences(
             GetAllGalleryinfoIdsUseCase(self.hitomi_la),
             GetAllGalleryinfoIdsUseCase(self.sqlalchemy),
@@ -216,63 +277,19 @@ class MirroringTask:
         )
 
     async def start_mirroring(self, delay: float) -> None:
-        logger.info(f"Starting Mirroring task with delay: {delay}")
+        logger.info(f"Starting mirroring task with delay: {delay}")
         while True:
             self.status.last_checked_at = now()
             async with self._task_lock:
                 if not self.status.is_checking_integrity:
                     try:
-                        await self.mirror()
+                        await self.perform_mirroring()
                     finally:
                         self.status.is_converting_to_info = False
                         self.status.is_mirroring_galleryinfo = False
                         self.status.reset()
 
+                if self.run_as_once:
+                    break
+
             await sleep(delay)
-
-    async def start_integrity_check(
-        self, partial_check_delay: float, all_check_delay: float
-    ) -> None:
-        if partial_check_delay >= all_check_delay:
-            logger.warning(
-                f"Partial check delay ({partial_check_delay}) is greater than or equal to all check delay ({all_check_delay})."
-            )
-            logger.warning(
-                f"In this case, partial check delay is ignored and overwritten by all check delay, so all checks are always performed."
-            )
-            partial_check_delay = all_check_delay
-        logger.info(
-            f"Starting Integrity Check task with paritial check delay: {partial_check_delay} and all check delay: {all_check_delay}"
-        )
-        task = create_task(sleep(all_check_delay))
-        while True:
-            is_all_check = False
-            await sleep(partial_check_delay)
-            if task.done():
-                task = create_task(sleep(all_check_delay))
-                is_all_check = True
-            self.status.last_checked_at = now()
-            async with self._task_lock:
-                if (
-                    not self.status.is_mirroring_galleryinfo
-                    and not self.status.is_converting_to_info
-                ):
-                    self.status.is_checking_integrity = True
-
-                    ids = tuple(
-                        set(await GetAllGalleryinfoIdsUseCase(self.sqlalchemy))
-                        - self.skip_ids
-                    )
-                    if not is_all_check:
-                        ids = ids[: self.INTEGRITY_PARTIAL_CHECK_RANGE_SIZE]
-                    try:
-                        await self._process_in_jobs(
-                            ids,
-                            self._integrity_check,
-                            is_remote=False,
-                        )
-                    except:
-                        self.skip_ids.clear()
-                    finally:
-                        self.status.is_checking_integrity = False
-                        self.status.reset()
