@@ -62,6 +62,20 @@ def parse_args(argv: list[str]) -> Namespace:
     )
 
     config.add_argument(
+        "--mongodb-search-index-analyzer",
+        type=str,
+        default="lucene.korean",
+        help="The analyzer to use for mongodb search index (default: 'lucene.korean')",
+    )
+
+    config.add_argument(
+        "--mongodb-search-index-search-analyzer",
+        type=str,
+        default="lucene.korean",
+        help="The search analyzer to use for mongodb search index (default: 'lucene.korean')",
+    )
+
+    config.add_argument(
         "--index-files",
         nargs="+",
         default=["index-english.nozomi"],

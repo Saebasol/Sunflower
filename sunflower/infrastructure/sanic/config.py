@@ -34,6 +34,8 @@ class SunflowerConfig(Config):
                 "SENTRY_DSN": "",
                 "GALLERYINFO_DB_URL": "",
                 "INFO_DB_URL": "",
+                "MONGODB_SEARCH_INDEX_ANALYZER": "lucene.korean",
+                "MONGODB_SEARCH_INDEX_SEARCH_ANALYZER": "lucene.korean",
                 "INDEX_FILES": ["index-english.nozomi"],
                 "MIRRORING_DELAY": 3600,
                 "INTEGRITY_PARTIAL_CHECK_DELAY": 21600,
@@ -82,6 +84,8 @@ class SunflowerConfig(Config):
     SENTRY_DSN: str
     GALLERYINFO_DB_URL: str
     INFO_DB_URL: str
+    MONGODB_SEARCH_INDEX_ANALYZER: str
+    MONGODB_SEARCH_INDEX_SEARCH_ANALYZER: str
     MIRRORING_DELAY: float
     INTEGRITY_PARTIAL_CHECK_DELAY: float
     INTEGRITY_FULL_CHECK_DELAY: float
