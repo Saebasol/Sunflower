@@ -89,8 +89,8 @@ async def startup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
                         "dynamic": True,
                         "fields": {
                             "title": {
-                                "analyzer": "lucene.korean",
-                                "searchAnalyzer": "lucene.korean",
+                                "analyzer": sunflower.config.MONGODB_SEARCH_INDEX_ANALYZER,
+                                "searchAnalyzer": sunflower.config.MONGODB_SEARCH_INDEX_SEARCH_ANALYZER,
                                 "type": "string",
                             }
                         },
@@ -98,39 +98,40 @@ async def startup(sunflower: Sunflower, loop: AbstractEventLoop) -> None:
                 },
             }
         )
-    mirroring_task = MirroringTask(
+
+    sunflower.ctx.mirroring_task = MirroringTask(
         sunflower.ctx.hitomi_la_galleryinfo_repository,
         sunflower.ctx.sa_galleryinfo_repository,
         sunflower.ctx.mongodb_repository,
         sunflower.config.RUN_AS_ONCE,
     )
-    mirroring_task.REMOTE_CONCURRENT_SIZE = (
+    sunflower.ctx.mirroring_task.REMOTE_CONCURRENT_SIZE = (
         sunflower.config.MIRRORING_REMOTE_CONCURRENT_SIZE
     )
-    mirroring_task.LOCAL_CONCURRENT_SIZE = (
+    sunflower.ctx.mirroring_task.LOCAL_CONCURRENT_SIZE = (
         sunflower.config.MIRRORING_LOCAL_CONCURRENT_SIZE
     )
-    mirroring_task.INTEGRITY_PARTIAL_CHECK_RANGE_SIZE = (
+    sunflower.ctx.mirroring_task.INTEGRITY_PARTIAL_CHECK_RANGE_SIZE = (
         sunflower.config.INTEGRITY_PARTIAL_CHECK_RANGE_SIZE
     )
 
     if not sunflower.test_mode:  # pragma: no cover
         if not sunflower.config.DISABLE_MIRRORING:
             task_manager.register_task(
-                mirroring_task.start_mirroring,
+                sunflower.ctx.mirroring_task.start_mirroring,
                 MirroringTask.__name__,
                 sunflower.config.MIRRORING_DELAY,
             )
         if not sunflower.config.DISABLE_INTEGRITY_CHECK:
             if not sunflower.config.DISABLE_INTEGRITY_PARTIAL_CHECK:
                 task_manager.register_task(
-                    mirroring_task.start_partial_integrity_check,
+                    sunflower.ctx.mirroring_task.start_partial_integrity_check,
                     f"{MirroringTask.__name__}_PartialIntegrityCheck",
                     sunflower.config.INTEGRITY_PARTIAL_CHECK_DELAY,
                 )
             if not sunflower.config.DISABLE_INTEGRITY_FULL_CHECK:
                 task_manager.register_task(
-                    mirroring_task.start_full_integrity_check,
+                    sunflower.ctx.mirroring_task.start_full_integrity_check,
                     f"{MirroringTask.__name__}_FullIntegrityCheck",
                     sunflower.config.INTEGRITY_FULL_CHECK_DELAY,
                 )

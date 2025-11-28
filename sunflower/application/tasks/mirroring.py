@@ -28,6 +28,8 @@ from yggdrasil.infrastructure.sqlalchemy.repositories.galleryinfo import (
     SAGalleryinfoRepository,
 )
 
+from sunflower import __version__
+
 
 def now() -> str:
     return f"({tzname[0]}) {datetime.now()}"
@@ -35,6 +37,7 @@ def now() -> str:
 
 @dataclass
 class MirroringStatus(Serializer):
+    version: str
     index_files: list[str]
     total_items: int
     batch_total: int
@@ -54,6 +57,7 @@ class MirroringStatus(Serializer):
     @classmethod
     def default(cls) -> "MirroringStatus":
         return cls(
+            version=__version__,
             index_files=[],
             total_items=0,
             batch_total=0,
