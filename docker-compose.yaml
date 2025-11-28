@@ -5,19 +5,20 @@ services:
       dockerfile: Dockerfile
     container_name: sunflower-dev
     ports:
-      - 8000:8000
+      - 22222:22222
     depends_on:
       - postgres
       - mongodb
     environment:
       # https://github.com/Saebasol/sunflower/blob/main/sunflower/infrastructure/sanic/config.py
-      SANIC_USE_ENV: "true"
-      SANIC_PRODUCTION: "true"
-      SANIC_HOST: "0.0.0.0"
-      SANIC_SENTRY_DSN: ""
-      SANIC_GALLERYINFO_DB_URL: postgresql+asyncpg://heliotrope_user:heliotropepasswd@postgres-heliotrope-dev:5432/heliotrope_db
-      SANIC_INFO_DB_URL: mongodb://heliotrope_user:heliotropepasswd@mongo-heliotrope-dev:27017
-      SANIC_INDEX_FILES: '["index-korean.nozomi"]'
+      SUNFLOWER_USE_ENV: "true"
+      SUNFLOWER_PRODUCTION: "true"
+      SUNFLOWER_HOST: "0.0.0.0"
+      SUNFLOWER_PORT: "22222"
+      SUNFLOWER_SENTRY_DSN: ""
+      SUNFLOWER_GALLERYINFO_DB_URL: postgresql+asyncpg://heliotrope_user:heliotropepasswd@postgres-heliotrope-dev:5432/heliotrope_db
+      SUNFLOWER_INFO_DB_URL: mongodb://heliotrope_user:heliotropepasswd@mongo-heliotrope-dev:27017
+      SUNFLOWER_INDEX_FILES: '["index-korean.nozomi"]'
 
   postgres:
     image: postgres
