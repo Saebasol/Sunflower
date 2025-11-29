@@ -51,7 +51,7 @@ class SunflowerConfig(Config):
                 "DISABLE_INTEGRITY_FULL_CHECK": False,
                 # Sanic config
                 "HOST": "127.0.0.1",
-                "PORT": 8000,
+                "PORT": 22222,
                 "DEBUG": False,
                 "ACCESS_LOG": False,
                 "FORWARDED_SECRET": "",

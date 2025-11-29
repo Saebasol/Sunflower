@@ -13,8 +13,8 @@ def parse_args(argv: list[str]) -> Namespace:
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
-        help="The port of the webserver (default: 8000)",
+        default=22222,
+        help="The port of the webserver (default: 22222)",
     )
 
     parser.add_argument(
