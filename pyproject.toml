@@ -43,4 +43,4 @@ disable_error_code = ["attr-defined", "union-attr", "name-defined", "used-before
 disallow_untyped_defs = true
 
 [tool.uv.sources]
-yggdrasil = { git = "https://github.com/Saebasol/Yggdrasil", rev = "2.0.0" }
+yggdrasil = { git = "https://github.com/Saebasol/Yggdrasil", rev = "2.0.1" }
