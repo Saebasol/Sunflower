@@ -1,6 +1,6 @@
 [project]
 name = "sunflower"
-version = "1.0.0"
+version = "1.0.1"
 description = "Hitomi.la metadata mirror server"
 readme = "README.md"
 requires-python = ">=3.13"
