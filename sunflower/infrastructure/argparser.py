@@ -90,13 +90,6 @@ def parse_args(argv: list[str]) -> Namespace:
     )
 
     config.add_argument(
-        "--refresh-delay",
-        type=int,
-        default=86400,
-        help="The delay between refresh ggjs (default: 86400)",
-    )
-
-    config.add_argument(
         "--integrity-partial-check-delay",
         type=int,
         default=21600,
@@ -143,6 +136,41 @@ def parse_args(argv: list[str]) -> Namespace:
         type=int,
         default=100,
         help="The range size for integrity partial checks (default: 100)",
+    )
+
+    config.add_argument(
+        "--run-as-once",
+        action="store_true",
+        default=False,
+        help="Run the mirroring and integrity tasks only once (default: False)",
+    )
+
+    config.add_argument(
+        "--disable-mirroring",
+        action="store_true",
+        default=False,
+        help="Disable the mirroring task (default: False)",
+    )
+
+    config.add_argument(
+        "--disable-integrity-check",
+        action="store_true",
+        default=False,
+        help="Disable the integrity check task (default: False)",
+    )
+
+    config.add_argument(
+        "--disable-integrity-partial-check",
+        action="store_true",
+        default=False,
+        help="Disable the integrity partial check task (default: False)",
+    )
+
+    config.add_argument(
+        "--disable-integrity-full-check",
+        action="store_true",
+        default=False,
+        help="Disable the integrity full check task (default: False)",
     )
 
     config.add_argument(
