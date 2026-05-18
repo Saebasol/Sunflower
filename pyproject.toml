@@ -5,7 +5,7 @@ description = "Hitomi.la metadata mirror server"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "deepdiff>=8.6.1",
+    "deepdiff>=9.1.0",
     "greenlet>=3.2.4",
     "sanic>=25.3.0",
     "sanic-ext>=24.12.0",
